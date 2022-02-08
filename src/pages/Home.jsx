@@ -6,10 +6,15 @@ import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
 function Home({ isLogin }) {
   //To add post from the firestore database
   const [postLists, setPostLists] = useState([]);
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   //Creating the reference to database collection needed
   const postCollectionRef = collection(db, "Posts");
+
+  const deletePost = async (val) => {
+    const postDoc = doc(db, "Posts", val);
+    await deleteDoc(postDoc);
+  };
 
   //To populate the database
   useEffect(() => {
@@ -18,16 +23,10 @@ function Home({ isLogin }) {
       // console.log(data);
       setPostLists(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
       // console.log(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-      setLoading(false)
+      setLoading(false);
     };
     getPost();
-  }, []);
-
-  const deletePost = async (val) => {
-    const postDoc = doc(db, "Posts", val);
-    await deleteDoc(postDoc);
-    alert("Me")
-  };
+  }, [deletePost]);
 
   return (
     <div className="px-10 sm:px-20 pb-20">
@@ -43,7 +42,10 @@ function Home({ isLogin }) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {postLists.map((item, i) => (
-                <div className="p-4 px-8 bg-zinc-600 text-slate-100 my-4 rounded heightCard" key={i}>
+                <div
+                  className="p-4 px-8 bg-zinc-600 text-slate-100 my-4 rounded heightCard"
+                  key={i}
+                >
                   <div className="flex items-center justify-between">
                     <p className="text-2xl font-semibold my-4">{item.title}</p>
                     {isLogin && item.author.id === auth.currentUser.uid && (
